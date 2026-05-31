@@ -42,7 +42,10 @@ const lanTopicPrefix = crypto.randomUUID();
 
 wss.on("connection", (ws, request) => {
   const subscribedTopics = new Set<string>();
-  const addressGroup = getAddressGroup(request.socket.remoteAddress || "");
+  const forwarded = request.headers["x-forwarded-for"];
+  const clientIp = typeof forwarded === "string" ? forwarded.split(",")[0].trim() : request.socket.remoteAddress || "";
+
+  const addressGroup = getAddressGroup(clientIp);
 
   if (!addressGroup) {
     ws.close();
